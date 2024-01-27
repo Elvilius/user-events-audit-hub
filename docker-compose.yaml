@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 8080:8080
+    volumes:
+      - ./:/github.com/Elvilius/user-events-audit-hub
+
+  events-db:
+    container_name: events-db
+    image: mongo:4.2.5-bionic
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: events-db
+      MONGO_INITDB_ROOT_PASSWORD: events-db
+      MONGO_INITDB_DATABASE: events-db
+      MONGODB_ROOT_PASSWORD: events-db
+    volumes:
+      - ./etc/sample_db:/docker-entrypoint-initdb.d:ro
+    ports:
+      - 27017:27017
