@@ -1,8 +1,23 @@
-package main 
+package main
 
-import "fmt"
+import (
+	"context"
+	"log"
+
+	"github.com/Elvilius/user-events-audit-hub/internal/app"
+)
+
 
 func main() {
-	fmt.Println("hello world")
-}
+	ctx := context.Background()
 
+	a, err := app.NewApp(ctx)
+
+	if err != nil {
+		log.Fatalf("failed to init app: %s", err.Error())
+	}
+
+	if err := a.Run(); err != nil {
+		log.Fatalf("failed to run app: %s", err.Error())
+	}
+}
