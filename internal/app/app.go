@@ -5,10 +5,16 @@ import (
 	"log"
 	"net"
 
+	repo "github.com/Elvilius/user-events-audit-hub/internal/repo/event"
+	service "github.com/Elvilius/user-events-audit-hub/internal/service/event"
+	desc "github.com/Elvilius/user-events-audit-hub/proto/event_v1"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 )
+
 
 type App struct {
 	grpcServer      *grpc.Server
@@ -17,38 +23,19 @@ type App struct {
 func NewApp(ctx context.Context) (*App, error) {
 	a := &App{}
 
-	err := a.initDeps(ctx)
+	client, err := newClient("mongodb://event:secret@eventsdb:27017/events?authSource=admin&directConnection=true", ctx)
 	if err != nil {
 		return nil, err
 	}
-
+	repo := repo.NewRepo(client)
+	a.grpcServer = grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	reflection.Register(a.grpcServer)
+	desc.RegisterEventV1Server(a.grpcServer, &EventServerApi{EventService: service.NewService(&repo)})
 	return a, nil
 }
 
 func (a *App) Run() error {
 	return a.runGRPCServer()
-}
-
-func (a *App) initDeps(ctx context.Context) error {
-	inits := []func(context.Context) error{
-		a.initGRPCServer,
-	}
-
-	for _, f := range inits {
-		err := f(ctx)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-
-func (a *App) initGRPCServer(_ context.Context) error {
-	a.grpcServer = grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
-	reflection.Register(a.grpcServer)
-	return nil
 }
 
 func (a *App) runGRPCServer() error {
@@ -65,4 +52,19 @@ func (a *App) runGRPCServer() error {
 	}
 
 	return nil
+}
+
+func newClient(url string, ctx context.Context) (*mongo.Client, error) {
+	clientOptions := options.Client().ApplyURI(url)
+	client, err := mongo.Connect(ctx, clientOptions)
+	if err != nil {
+		return nil, err
+	}
+
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }

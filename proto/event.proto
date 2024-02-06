@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package event_v1;
+
+
+option go_package = "/event_v1;event_v1";
+
+
+service EventV1 {
+  rpc Create(CreateRequest) returns (CreateResponse);
+}
+
+message Event {
+  int64 user_id = 1;
+  string event_type = 2;
+  string system_name = 3;
+  map<string, string> metadata = 4;
+  string message = 5;
+  string severity = 6;
+}
+
+message CreateRequest {
+  Event event = 1;
+}
+
+message CreateResponse {
+  string id = 1;
+}

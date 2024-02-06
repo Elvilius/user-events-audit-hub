@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang:1.21
 
 WORKDIR /github.com/Elvilius/user-events-audit-hub
 
