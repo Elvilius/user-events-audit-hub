@@ -3,36 +3,22 @@ package service
 import (
 	"context"
 
+	"github.com/Elvilius/user-events-audit-hub/internal/domain/models"
 	repo "github.com/Elvilius/user-events-audit-hub/internal/repo/event"
 )
 
-type CreateEventDto struct {
-	UserId     int
-	EventType  string
-	SystemName string
-	Message     string
-	Severity    string
-	Metadata    map[string]string
-}
-
-
-
-type EventIdDto struct {
-	Id string
+func NewService(repo *repo.Repo) *Service {
+	return &Service{repo: repo}
 }
 
 type Service struct {
 	repo *repo.Repo
 }
 
-func (s *Service) Create(ctx context.Context, createDto CreateEventDto) (EventIdDto, error) {
-	id, err := s.repo.CreateEvent(ctx, repo.CreateEventDto(createDto))
+func (s *Service) Create(ctx context.Context, event models.Event) (repo.EventID, error) {
+	id, err := s.repo.CreateEvent(ctx, event)
 	if err != nil {
-		return EventIdDto{}, err
+		return "", err
 	}
-	return EventIdDto{Id: id}, nil
-}
-
-func NewService(repo *repo.Repo) Service {
-	return Service{repo: repo}
+	return id, nil
 }

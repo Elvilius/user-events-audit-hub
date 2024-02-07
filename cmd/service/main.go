@@ -2,23 +2,24 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
 
+	"github.com/Elvilius/user-events-audit-hub/internal/config"
+	// "log"
 	"github.com/Elvilius/user-events-audit-hub/internal/app"
 )
 
 
 func main() {
 	ctx := context.Background()
+	cfg := config.Load()
 
-	a, err := app.NewApp(ctx)
+	a, err := app.NewApp(ctx, cfg)
 
 	if err != nil {
-		log.Fatalf("failed to init app: %s", err.Error())
+		slog.Error(err.Error())
 	}
 
-	if err := a.Run(); err != nil {
-		log.Fatalf("failed to run app: %s", err.Error())
-	}
+	a.GRPCServer.Run()
 }
 

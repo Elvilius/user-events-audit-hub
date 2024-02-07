@@ -1,6 +1,6 @@
 module github.com/Elvilius/user-events-audit-hub
 
-go 1.20
+go 1.22
 
 require google.golang.org/grpc v1.61.0
 
@@ -14,10 +14,12 @@ require (
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
 	golang.org/x/crypto v0.15.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
 require (
 	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.1
 	go.mongodb.org/mongo-driver v1.13.1
 	golang.org/x/net v0.18.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect

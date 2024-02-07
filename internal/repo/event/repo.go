@@ -3,39 +3,35 @@ package repo
 import (
 	"context"
 
+	"github.com/Elvilius/user-events-audit-hub/internal/domain/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	
 )
 
-type CreateEventDto struct {
-	UserId     int
-	EventType  string
-	SystemName string
-	Message     string
-	Severity    string
-	Metadata    map[string]string
+const DBname = "eventsdb"
+
+func NewRepo(client *mongo.Client) Repo {
+	return Repo{client: client}
 }
 
 type Repo struct {
 	client *mongo.Client
 }
 
-func (r *Repo) CreateEvent(ctx context.Context, createDto CreateEventDto) (string, error) {
-	result, err := r.client.Database("eventsdb").Collection("events").InsertOne(ctx, createDto)
+type EventID string
+
+func (r *Repo) CreateEvent(ctx context.Context, newEvent models.Event) (EventID, error) {
+	result, err := r.client.Database(DBname).Collection("events").InsertOne(ctx, newEvent)
 	if err != nil {
 		return "", err
 	}
 
 	insertedID := result.InsertedID.(primitive.ObjectID)
-	return insertedID.Hex(), nil
-	
+
+	return EventID(insertedID.Hex()), nil
+
 }
 
 func (r *Repo) GetEvent() {
 	return
-}
-
-func NewRepo(client *mongo.Client) Repo {
-	return Repo{client: client}
 }

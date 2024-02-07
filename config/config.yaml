@@ -1,0 +1,3 @@
+env: "test"
+grpc_port: 9000
+mongo_url: "mongodb://event:secret@localhost:27017/events?authSource=admin&directConnection=true"

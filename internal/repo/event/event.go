@@ -7,11 +7,11 @@ import (
 )
 
 type Event struct {
-	Id         primitive.ObjectID `bson:"_id,omitempty"`
+	ID         primitive.ObjectID `bson:"_id,omitempty"`
 	UserID     string             `bson:"user_id"`
 	EventType  string             `bson:"event_type"`
 	Metadata   map[string]string  `bson:"metadata"`
-	Timestamp  time.Time          `bson:"timestamp, default:current_timestamp"`
+	Timestamp  time.Time          `bson:"timestamp, default:current_timestamp,omitempty"`
 	SystemName string             `bson:"system_name"`
 	Message    string             `bson:"message"`
 	Severity   string             `bson:"severity"`
