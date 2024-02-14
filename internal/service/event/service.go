@@ -22,3 +22,11 @@ func (s *Service) Create(ctx context.Context, event models.Event) (repo.EventID,
 	}
 	return id, nil
 }
+
+func (s *Service) List(ctx context.Context) ([]models.Event, error) {
+	events, err := s.repo.GetEventList(ctx)
+	if err != nil {
+		return events, err
+	}
+	return events, nil
+}

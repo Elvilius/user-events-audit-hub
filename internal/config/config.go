@@ -11,6 +11,8 @@ type Config struct {
 	Env string `yaml:"env"`
 	GrpcPort int `yaml:"grpc_port"`
 	MongoUrl string `yaml:"mongo_url"`
+	HttpAddress string `yaml:"http_address"`
+
 }
 
 func Load() *Config {

@@ -9,10 +9,11 @@ import (
 	"github.com/Elvilius/user-events-audit-hub/internal/app"
 )
 
-
 func main() {
 	ctx := context.Background()
 	cfg := config.Load()
+
+	done := make(chan struct{})
 
 	a, err := app.NewApp(ctx, cfg)
 
@@ -20,6 +21,12 @@ func main() {
 		slog.Error(err.Error())
 	}
 
-	a.GRPCServer.Run()
-}
+	go func() {
+		a.HTTPServer.Run()
+	}()
 
+	go func() {
+		a.GRPCServer.Run()
+	}()
+	<-done
+}
