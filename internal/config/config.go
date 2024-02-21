@@ -2,36 +2,37 @@ package config
 
 import (
 	"os"
-	"path/filepath"
+	"strconv"
 
-	"gopkg.in/yaml.v2"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	Env string `yaml:"env"`
-	GrpcPort int `yaml:"grpc_port"`
-	MongoUrl string `yaml:"mongo_url"`
-	HttpAddress string `yaml:"http_address"`
-
+	Env      string
+	GrpcPort int
+	MongoDns string
+	HttpPort int
 }
 
-func Load() *Config {
-	data, err := os.ReadFile(getFilePath())
-    if err != nil {
-        panic(err)
-    }
-
+func Load() (*Config, error) {
 	var cfg Config
-	
-	yaml.Unmarshal(data, &cfg)
-	return &cfg
-}
+	if err := godotenv.Load(); err != nil {
+		return &cfg, err
+	}
 
-func getFilePath() string {
-	currentDir, err := os.Getwd()
-    if err != nil {
-        panic(err)
-    }
+	grpcPort, err := strconv.Atoi(os.Getenv("GRPC_PORT"))
+	if err != nil {
+		return &cfg, err
+	}
 
-	return filepath.Join(currentDir, "config/config.yaml")
+	httpPort, err := strconv.Atoi(os.Getenv("HTTP_PORT"))
+	if err != nil {
+		return &cfg, err
+	}
+
+	cfg.MongoDns = os.Getenv("MONGO_DNS")
+	cfg.GrpcPort = grpcPort
+	cfg.HttpPort = httpPort
+
+	return &cfg, nil
 }

@@ -2,7 +2,7 @@ package repo
 
 import (
 	"context"
-	_"fmt"
+	_ "fmt"
 
 	"github.com/Elvilius/user-events-audit-hub/internal/domain/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -33,7 +33,6 @@ func (r *Repo) CreateEvent(ctx context.Context, newEvent models.Event) (EventID,
 }
 
 func (r *Repo) GetEventList(ctx context.Context) ([]models.Event, error) {
-
 	var events []models.Event
 
 	cursor, err := r.client.Database(DBname).Collection("events").Find(ctx, struct{}{})
@@ -43,7 +42,6 @@ func (r *Repo) GetEventList(ctx context.Context) ([]models.Event, error) {
 	defer cursor.Close(ctx)
 
 	err = cursor.All(ctx, &events)
-
 	if err != nil {
 		return events, err
 	}

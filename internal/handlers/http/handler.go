@@ -2,24 +2,25 @@ package event
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	service "github.com/Elvilius/user-events-audit-hub/internal/service/event"
 )
 
-type EventServerApi struct {
+type httpHandler struct {
 	EventService *service.Service
 }
 
 func Register(server *http.ServeMux, service *service.Service) {
-	s := EventServerApi{EventService: service}
-	server.HandleFunc("/api/event/list", s.List)
+	h := httpHandler{EventService: service}
+	server.HandleFunc("/api/event/list", h.List)
 }
 
-func (e *EventServerApi) List(w http.ResponseWriter, r *http.Request) {
+func (h *httpHandler) List(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	events, err := e.EventService.List(ctx)
+	events, err := h.EventService.List(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -32,5 +33,10 @@ func (e *EventServerApi) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonData)
+	n, err := w.Write(jsonData)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Println(n)
 }

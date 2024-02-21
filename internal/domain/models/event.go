@@ -7,5 +7,5 @@ type Event struct {
 	SystemName string
 	Message    string
 	Severity   string
-	Metadata   map[string]string	
+	Metadata   map[string]string
 }

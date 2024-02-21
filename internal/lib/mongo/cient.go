@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func New(ctx context.Context, url string,) (*mongo.Client, error) {
+func New(ctx context.Context, url string) (*mongo.Client, error) {
 	clientOptions := options.Client().ApplyURI(url)
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {

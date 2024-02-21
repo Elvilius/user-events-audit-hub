@@ -20,6 +20,7 @@ require (
 require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.1
+	github.com/joho/godotenv v1.5.1
 	go.mongodb.org/mongo-driver v1.13.1
 	golang.org/x/net v0.18.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect

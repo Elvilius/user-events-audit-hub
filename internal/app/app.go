@@ -2,9 +2,14 @@ package app
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 
-	grpcapp "github.com/Elvilius/user-events-audit-hub/internal/app/grpc"
-	httpapp "github.com/Elvilius/user-events-audit-hub/internal/app/http"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
+	grpcHandler "github.com/Elvilius/user-events-audit-hub/internal/handlers/grpc"
+	httpHandler "github.com/Elvilius/user-events-audit-hub/internal/handlers/http"
 
 	"github.com/Elvilius/user-events-audit-hub/internal/config"
 	"github.com/Elvilius/user-events-audit-hub/internal/lib/mongo"
@@ -13,12 +18,12 @@ import (
 )
 
 type App struct {
-	GRPCServer *grpcapp.App
-	HTTPServer *httpapp.App
+	GRPCServer *grpc.Server
+	HTTPServer *http.Server
 }
 
 func NewApp(ctx context.Context, cfg *config.Config) (*App, error) {
-	client, err := mongo.New(ctx, cfg.MongoUrl)
+	client, err := mongo.New(ctx, cfg.MongoDns)
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +31,24 @@ func NewApp(ctx context.Context, cfg *config.Config) (*App, error) {
 	service := service.NewService(repo)
 
 	return &App{
-		GRPCServer: grpcapp.New(service, cfg.GrpcPort),
-		HTTPServer: httpapp.New(service, cfg.HttpAddress),
+		GRPCServer: newGrpc(cfg, service),
+		HTTPServer: newHttp(cfg, service),
 	}, nil
+}
+
+func newGrpc(cfg *config.Config, service *service.Service) *grpc.Server {
+	grpcServer := grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	grpcHandler.Register(grpcServer, service)
+	return grpcServer
+}
+
+func newHttp(cfg *config.Config, service *service.Service) *http.Server {
+	mux := http.NewServeMux()
+	httpHandler.Register(mux, service)
+
+	httpServer := &http.Server{
+		Handler: mux,
+		Addr:    ":" + fmt.Sprint(cfg.HttpPort),
+	}
+	return httpServer
 }
